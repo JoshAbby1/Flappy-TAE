@@ -61,14 +61,13 @@ const gameUI = document.getElementById('gameUI');
 const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
 const countdownEl = document.getElementById('countdown');
-const gameContainer = document.getElementById('gameContainer');
 
 let bird, pipes, score, gameInterval, gravity, flapStrength;
 let gameWidth, gameHeight;
 const pipeWidth = 50;
 const pipeGap = 120;
 const pipeSpeed = 2;
-let countdown = 3;
+let countdown = 5;
 let gameStarted = false;
 
 function resizeCanvas() {
@@ -91,18 +90,22 @@ function init() {
   showCountdown();
 }
 
-// Countdown before start
+// Countdown with 1-second delay after
 function showCountdown() {
-  countdown = 3;
+  countdown = 5;
   countdownEl.style.display = 'block';
   countdownEl.innerText = countdown;
   const cdInterval = setInterval(() => {
     countdown--;
     if(countdown === 0) {
-      countdownEl.style.display = 'none';
-      gameStarted = true;
-      gameInterval = setInterval(gameLoop, 20);
+      countdownEl.innerText = 'Get ready...';
       clearInterval(cdInterval);
+      // 1-second pause before starting
+      setTimeout(() => {
+        countdownEl.style.display = 'none';
+        gameStarted = true;
+        gameInterval = setInterval(gameLoop, 20);
+      }, 1000);
     } else {
       countdownEl.innerText = countdown;
     }
@@ -113,7 +116,7 @@ function flap() {
   if(gameStarted) bird.dy = flapStrength;
 }
 
-// Keyboard and touch
+// Keyboard and touch controls
 document.addEventListener('keydown', e => { if(e.code === 'Space') flap(); });
 canvas.addEventListener('click', flap);
 canvas.addEventListener('touchstart', flap);
@@ -125,9 +128,7 @@ function gameLoop() {
   bird.y += bird.dy;
 
   // Move pipes
-  for(let i = 0; i < pipes.length; i++) {
-    pipes[i].x -= pipeSpeed;
-  }
+  for(let i = 0; i < pipes.length; i++) pipes[i].x -= pipeSpeed;
 
   // Add new pipes
   if(pipes[pipes.length-1].x < gameWidth - 200) {
@@ -147,10 +148,7 @@ function gameLoop() {
     }
   }
 
-  if(bird.y + bird.height > gameHeight || bird.y < 0) {
-    gameOver();
-    return;
-  }
+  if(bird.y + bird.height > gameHeight || bird.y < 0) gameOver();
 
   // Increase score
   for(let pipe of pipes) {
